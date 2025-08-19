@@ -19,6 +19,16 @@ export const SwitchWorkspaceSchema = z.object({
 
 export const GetCurrentWorkspaceSchema = z.object({});
 
+export const UpdateWorkspaceSchema = z.object({
+  workspaceId: z.string().uuid(),
+  updates: z.object({
+    name: z.string().min(1).max(100).optional(),
+    projectPath: z.string().optional(),
+    description: z.string().optional(),
+    config: z.record(z.any()).optional(),
+  }),
+});
+
 export const DeleteWorkspaceSchema = z.object({
   workspaceId: z.string().uuid(),
 });

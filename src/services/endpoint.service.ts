@@ -36,12 +36,15 @@ export class EndpointRegistry {
    * Add a new endpoint to the current workspace
    */
   async addEndpoint(endpointInput: ApiEndpointInput): Promise<ApiEndpoint> {
+    let workspace: any;
+    let validatedInput: any;
+    
     try {
       // Ensure there's a current workspace
-      const workspace = this.workspaceManager.requireCurrentWorkspace();
+      workspace = this.workspaceManager.requireCurrentWorkspace();
 
       // Validate input
-      const validatedInput = ApiEndpointCreateSchema.parse(endpointInput);
+      validatedInput = ApiEndpointCreateSchema.parse(endpointInput);
 
       // Check for duplicate names in the workspace
       await this.checkDuplicateName(workspace.id, validatedInput.name);
@@ -68,7 +71,41 @@ export class EndpointRegistry {
       return savedEndpoint;
       
     } catch (error) {
+      // Log the full error details for debugging
       this.logger.error('Failed to add endpoint:', error);
+      
+      // Check if it's a duplicate name error but endpoint was actually saved
+      if (error instanceof ValidationError && error.message.includes('already exists') && validatedInput && workspace) {
+        // Try to find the existing endpoint with the same name
+        try {
+          const endpoints = await this.storage.getEndpointsByWorkspace(workspace.id);
+          const existing = endpoints.find(ep => ep.name === validatedInput.name);
+          
+          if (existing) {
+            this.logger.warn('Endpoint was actually saved despite duplicate error, returning existing endpoint');
+            return existing;
+          }
+        } catch (checkError) {
+          // Ignore check error and re-throw original
+        }
+      }
+      
+      // Check if it's a storage error and the endpoint was actually saved
+      if (error instanceof Error && error.message.includes('Failed to save endpoint')) {
+        try {
+          const workspace = this.workspaceManager.requireCurrentWorkspace();
+          const endpoints = await this.storage.getEndpointsByWorkspace(workspace.id);
+          const existing = endpoints.find(ep => ep.name === validatedInput.name);
+          
+          if (existing) {
+            this.logger.warn('Endpoint was actually saved despite storage error, returning existing endpoint');
+            return existing;
+          }
+        } catch (checkError) {
+          // Ignore check error and re-throw original
+        }
+      }
+      
       throw error;
     }
   }

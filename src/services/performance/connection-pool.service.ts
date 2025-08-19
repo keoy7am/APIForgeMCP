@@ -179,13 +179,27 @@ export class ConnectionPool extends EventEmitter {
   private createPool(url: URL): PooledConnection {
     const isHttps = url.protocol === 'https:';
     
-    const agentOptions = {
+    const agentOptions: any = {
       keepAlive: this.config.keepAlive,
       keepAliveMsecs: this.config.keepAliveInterval,
       maxSockets: this.config.maxConnections,
       maxFreeSockets: this.config.minConnections,
       timeout: this.config.connectionTimeout,
     };
+    
+    // For HTTPS connections, allow self-signed certificates in development
+    if (isHttps) {
+      // Check if we should reject unauthorized certificates
+      // Allow override via environment variable or if running in development
+      const rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0' 
+        && process.env.NODE_ENV === 'production';
+      
+      agentOptions.rejectUnauthorized = rejectUnauthorized;
+      
+      if (!rejectUnauthorized) {
+        this.logger.warn('SSL certificate validation disabled - only use in development!');
+      }
+    }
     
     const agent = isHttps
       ? new HttpsAgent(agentOptions)

@@ -63,5 +63,32 @@
     "createdAt": "2025-08-18T07:39:16.340Z",
     "updatedAt": "2025-08-18T07:39:16.340Z",
     "config": {}
+  },
+  {
+    "id": "test-1755622741772",
+    "name": "Test Workspace",
+    "projectPath": "./test-project",
+    "createdAt": "2025-08-19T16:59:01.772Z",
+    "updatedAt": "2025-08-19T16:59:01.772Z",
+    "config": {}
+  },
+  {
+    "id": "79f118cf-a76c-4f25-bc85-4ba894ffceee",
+    "name": "StreamingSales API",
+    "projectPath": "A:\u0002. SDX_Projects\u0007. StreamingSalesabp",
+    "description": "StreamingSales 多租戶媒合銷售平台 API 管理工作區",
+    "createdAt": "2025-08-19T17:14:55.947Z",
+    "updatedAt": "2025-08-19T17:14:55.947Z",
+    "config": {
+      "baseUrl": "https://localhost:44324",
+      "apiVersion": "v1",
+      "areas": [
+        "platform",
+        "agent",
+        "seller"
+      ],
+      "defaultTimeout": 30000,
+      "environment": "development"
+    }
   }
 ]

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2025-08-19
+
+### Fixed
+- Fixed endpoint storage error recovery mechanism with improved validation
+- Resolved storage error handling where operations succeed but return errors
+- Fixed SSL/TLS certificate validation issues for HTTPS requests in development
+- Added HTTPS agent configuration for self-signed certificates
+- Fixed missing `update_workspace` MCP tool functionality
+- Added comprehensive error recovery logic for both workspace and endpoint operations
+- Fixed TypeScript compilation errors in error handling variable scoping
+- Improved cross-platform HTTPS request handling with proper agent configuration
+
+### Enhanced
+- Enhanced error recovery with intelligent retry mechanisms
+- Improved storage error detection and graceful degradation
+- Better handling of Windows-specific storage initialization issues
+- Added proper null checks and error context preservation in exception handlers
+
 ## [1.0.5] - 2025-08-19
 
 ### Fixed

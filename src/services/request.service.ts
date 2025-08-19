@@ -23,6 +23,7 @@ import {
   RequestTimeoutError,
   ResponseParsingError
 } from './error';
+import { Agent as HttpsAgent } from 'https';
 import { EndpointRegistry } from './endpoint.service';
 import { Logger } from '../utils/logger';
 import { 
@@ -543,6 +544,25 @@ export class RequestExecutor {
         // Add timeout to prevent hanging requests
         signal: AbortSignal.timeout(30000), // 30 second timeout
       };
+
+      // Configure HTTPS agent for self-signed certificates in development
+      if (request.url.startsWith('https://')) {
+        const rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0' 
+          && process.env.NODE_ENV === 'production';
+        
+        if (!rejectUnauthorized) {
+          // For Node.js fetch, we need to use dispatcher with agent
+          const httpsAgent = new HttpsAgent({
+            rejectUnauthorized: false
+          });
+          
+          // Note: This requires Node.js 18.13+ with undici support
+          // @ts-ignore
+          options.dispatcher = httpsAgent;
+          
+          this.logger.warn('SSL certificate validation disabled for HTTPS requests - only use in development!');
+        }
+      }
 
       // Process request body using new processor
       if (this.shouldIncludeBody(request.method) && request.body) {

@@ -230,6 +230,16 @@ export class APIForgeMCPServer {
     });
 
     this.toolRegistry.registerTool({
+      name: 'update_workspace',
+      description: 'Update workspace configuration and settings',
+      inputSchema: require('../tools/schemas/workspace.schemas').UpdateWorkspaceSchema,
+      handler: async (input) => {
+        const updatedWorkspace = await services.workspaceManager.updateWorkspace(input.workspaceId, input.updates);
+        return updatedWorkspace;
+      },
+    });
+
+    this.toolRegistry.registerTool({
       name: 'delete_workspace',
       description: 'Delete a workspace and all its endpoints',
       inputSchema: require('../tools/schemas/workspace.schemas').DeleteWorkspaceSchema,
