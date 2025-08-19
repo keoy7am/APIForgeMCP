@@ -74,9 +74,11 @@ Add to Claude Desktop configuration file:
 {
   "mcpServers": {
     "apiforge": {
-      "command": "node",
-      "args": ["./dist/index.js"],
-      "cwd": "A:/fast-git/APIForgeMCP"
+      "command": "npx",
+      "args": ["apiforge-mcp@latest"],
+      "env": {
+        "APIFORGE_DATA_DIR": "~/.apiforge"
+      }
     }
   }
 }
