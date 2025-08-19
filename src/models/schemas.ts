@@ -69,7 +69,7 @@ export const WorkspaceConfigSchema = z.object({
   name: z.string().min(1).max(100),
   projectPath: z.string(),
   description: z.string().max(500).optional(),
-  settings: z.record(z.any()).optional(),
+  config: z.record(z.any()).optional(),
 });
 
 export const WorkspaceSchema = z.object({

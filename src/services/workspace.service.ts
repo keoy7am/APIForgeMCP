@@ -32,9 +32,11 @@ export class WorkspaceManager {
    * Create a new workspace
    */
   async createWorkspace(config: WorkspaceInput): Promise<Workspace> {
+    let validatedConfig: any;
+    
     try {
       // Validate input
-      const validatedConfig = WorkspaceConfigSchema.parse(config);
+      validatedConfig = WorkspaceConfigSchema.parse(config);
       
       // Check if workspace name already exists
       const existing = await this.storage.findWorkspaceByName(validatedConfig.name);
@@ -53,7 +55,7 @@ export class WorkspaceManager {
         description: validatedConfig.description,
         createdAt: new Date(),
         updatedAt: new Date(),
-        config: validatedConfig.settings || {},
+        config: validatedConfig.config || {},
       };
 
       // Validate the complete workspace object
@@ -67,7 +69,23 @@ export class WorkspaceManager {
       return savedWorkspace;
       
     } catch (error) {
+      // Log the full error details for debugging
       this.logger.error('Failed to create workspace:', error);
+      
+      // Check if it's a storage error and the workspace was actually saved
+      if (error instanceof Error && error.message.includes('Failed to save workspace') && validatedConfig) {
+        // Try to retrieve the workspace to see if it was actually saved
+        try {
+          const existing = await this.storage.findWorkspaceByName(validatedConfig.name);
+          if (existing) {
+            this.logger.warn('Workspace was actually saved despite error, returning existing workspace');
+            return existing;
+          }
+        } catch (checkError) {
+          // Ignore check error and re-throw original
+        }
+      }
+      
       throw error;
     }
   }
@@ -217,7 +235,7 @@ export class WorkspaceManager {
         updatedAt: new Date(),
         config: {
           ...workspace.config,
-          ...(updates.settings || {}),
+          ...(updates.config || {}),
         },
       };
 
@@ -314,8 +332,12 @@ export class WorkspaceManager {
     // Additional path validation can be added here
     // For example, checking if the path exists, is accessible, etc.
     
-    // Basic path format validation
-    if (projectPath.includes('..')) {
+    // Basic path format validation - more lenient for Windows paths
+    // Allow Windows-style paths with drive letters and backslashes
+    const normalizedPath = projectPath.replace(/\\/g, '/');
+    
+    // Check for dangerous path traversal attempts
+    if (normalizedPath.includes('../') || normalizedPath.includes('..\\')) {
       throw new ValidationError('Project path cannot contain relative path components (..)');
     }
   }

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2025-08-19
+
+### Fixed
+- Fixed workspace creation failure due to schema property mismatch
+- Resolved "Failed to save workspace" error on Windows systems
+- Fixed configuration property inconsistency between MCP tool schema and internal schema
+- Improved Windows path validation to handle drive letters and backslashes
+- Enhanced error recovery mechanism to handle cases where data saves successfully but errors are reported
+- Fixed variable scoping issues in workspace creation error handling
+
 ## [1.0.3] - 2025-08-19
 
 ### Fixed
