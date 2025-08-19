@@ -60,6 +60,7 @@ npm start
 
   ```bash
   claude mcp add apiforge -- npx -y apiforge-mcp@latest
+  claude mcp add apiforge --scope user -- npx -y apiforge-mcp@latest (set to global)
   ```
 
   **Alternative configuration for globally installed version:**
