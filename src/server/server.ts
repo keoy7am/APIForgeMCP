@@ -69,6 +69,10 @@ export class APIForgeMCPServer {
    */
   async start(): Promise<void> {
     try {
+      // Initialize storage before starting server
+      await this.storage.initialize();
+      this.logger.info('Storage initialized successfully');
+      
       // Connect to stdio transport
       const transport = new StdioServerTransport();
       await this.server.connect(transport);
@@ -85,6 +89,8 @@ export class APIForgeMCPServer {
    */
   async stop(): Promise<void> {
     try {
+      // Close storage before stopping server
+      await this.storage.close();
       await this.server.close();
       this.logger.info('APIForge MCP Server stopped');
     } catch (error) {
