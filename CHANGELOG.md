@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2025-08-19
+
+### Fixed
+- Fixed critical HTTP response schema validation error causing request failures
+- Resolved "Number must be greater than or equal to 100" status code validation error
+- Removed schema validation for error responses to prevent validation loops
+- Enhanced SSL/TLS certificate error handling with specific error messages
+- Improved error handling for HTTPS requests with self-signed certificates
+- Added more descriptive error messages for network connection failures
+
+### Enhanced
+- Better error classification for SSL/TLS certificate issues
+- Improved error response handling when HTTP requests fail completely
+- Enhanced development guidance for certificate-related errors
+- More robust error recovery mechanisms for network failures
+
 ## [1.0.6] - 2025-08-19
 
 ### Fixed

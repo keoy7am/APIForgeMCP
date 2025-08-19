@@ -1,6 +1,6 @@
 {
   "name": "apiforge-mcp",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "API testing and management tool for AI Agents - MCP Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
