@@ -1,0 +1,67 @@
+[
+  {
+    "id": "884f446c-f0b5-4bc0-891a-7f1c53ee3c07",
+    "name": "Test Workspace",
+    "projectPath": "/test/path",
+    "description": "A test workspace",
+    "createdAt": "2025-08-18T07:39:16.127Z",
+    "updatedAt": "2025-08-18T07:39:16.127Z",
+    "config": {}
+  },
+  {
+    "id": "633debc8-fe4e-4d5d-bdcc-efc3e2514541",
+    "name": "Duplicate Workspace",
+    "projectPath": "/test/path",
+    "createdAt": "2025-08-18T07:39:16.139Z",
+    "updatedAt": "2025-08-18T07:39:16.139Z",
+    "config": {}
+  },
+  {
+    "id": "ef4a17de-f8ec-4b10-acd3-9f09fac69c3f",
+    "name": "Switch Test",
+    "projectPath": "/test/path",
+    "createdAt": "2025-08-18T07:39:16.211Z",
+    "updatedAt": "2025-08-18T07:39:16.211Z",
+    "config": {}
+  },
+  {
+    "id": "6a07c7a2-8d55-4e8c-9327-466d14652560",
+    "name": "Zebra Workspace",
+    "projectPath": "/zebra",
+    "createdAt": "2025-08-18T07:39:16.253Z",
+    "updatedAt": "2025-08-18T07:39:16.253Z",
+    "config": {}
+  },
+  {
+    "id": "0c6c3b55-d779-4fb5-aa88-1825901f9eec",
+    "name": "Alpha Workspace",
+    "projectPath": "/alpha",
+    "createdAt": "2025-08-18T07:39:16.253Z",
+    "updatedAt": "2025-08-18T07:39:16.253Z",
+    "config": {}
+  },
+  {
+    "id": "3c6faaf5-9ec1-45dc-b236-8755e5cf0817",
+    "name": "Beta Workspace",
+    "projectPath": "/beta",
+    "createdAt": "2025-08-18T07:39:16.254Z",
+    "updatedAt": "2025-08-18T07:39:16.254Z",
+    "config": {}
+  },
+  {
+    "id": "c5295e3a-ffcc-4060-97e2-bd3a64c55c81",
+    "name": "Current Test",
+    "projectPath": "/test/path",
+    "createdAt": "2025-08-18T07:39:16.308Z",
+    "updatedAt": "2025-08-18T07:39:16.308Z",
+    "config": {}
+  },
+  {
+    "id": "f2b5f1bf-9f83-46ed-b028-6d0b08b849d9",
+    "name": "Required Test",
+    "projectPath": "/test/path",
+    "createdAt": "2025-08-18T07:39:16.340Z",
+    "updatedAt": "2025-08-18T07:39:16.340Z",
+    "config": {}
+  }
+]

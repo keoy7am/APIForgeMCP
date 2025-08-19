@@ -1,0 +1,375 @@
+{
+  "version": "1.0.0",
+  "description": "APIForge MCP Server Performance Configuration",
+  "lastUpdated": "2025-08-18",
+  
+  "cache": {
+    "production": {
+      "maxSize": 100971520,
+      "maxEntries": 50000,
+      "defaultTTL": 900000,
+      "evictionPolicy": "lru",
+      "compression": true,
+      "persistent": true,
+      "collectStats": true,
+      "warningThresholds": {
+        "hitRate": 85,
+        "memoryUsage": 80,
+        "evictionRate": 5
+      },
+      "strategies": {
+        "request": {
+          "ttl": 300000,
+          "priority": 10,
+          "tags": ["api", "request"]
+        },
+        "response": {
+          "ttl": 600000,
+          "priority": 8,
+          "tags": ["api", "response"]
+        },
+        "auth": {
+          "ttl": 1800000,
+          "priority": 15,
+          "tags": ["auth", "security"]
+        },
+        "environment": {
+          "ttl": 3600000,
+          "priority": 12,
+          "tags": ["config", "environment"]
+        },
+        "history": {
+          "ttl": 86400000,
+          "priority": 5,
+          "tags": ["history", "analytics"]
+        }
+      }
+    },
+    "development": {
+      "maxSize": 52428800,
+      "maxEntries": 10000,
+      "defaultTTL": 300000,
+      "evictionPolicy": "lru",
+      "compression": false,
+      "persistent": false,
+      "collectStats": true,
+      "warningThresholds": {
+        "hitRate": 70,
+        "memoryUsage": 70,
+        "evictionRate": 10
+      }
+    },
+    "testing": {
+      "maxSize": 10485760,
+      "maxEntries": 1000,
+      "defaultTTL": 60000,
+      "evictionPolicy": "lru",
+      "compression": false,
+      "persistent": false,
+      "collectStats": false
+    }
+  },
+  
+  "connectionPool": {
+    "production": {
+      "maxConnections": 100,
+      "maxConnectionsPerHost": 15,
+      "connectionTimeout": 5000,
+      "idleTimeout": 30000,
+      "retryAttempts": 3,
+      "retryDelay": 1000,
+      "keepAlive": true,
+      "keepAliveMsecs": 1000,
+      "maxSockets": 50,
+      "maxFreeSockets": 10,
+      "scheduling": "lifo",
+      "warningThresholds": {
+        "utilization": 80,
+        "queueTime": 100,
+        "failureRate": 5
+      },
+      "healthCheck": {
+        "enabled": true,
+        "interval": 30000,
+        "timeout": 5000,
+        "failureThreshold": 3
+      }
+    },
+    "development": {
+      "maxConnections": 20,
+      "maxConnectionsPerHost": 5,
+      "connectionTimeout": 3000,
+      "idleTimeout": 15000,
+      "retryAttempts": 2,
+      "retryDelay": 500,
+      "keepAlive": true,
+      "keepAliveMsecs": 500,
+      "maxSockets": 10,
+      "maxFreeSockets": 2,
+      "scheduling": "fifo"
+    },
+    "testing": {
+      "maxConnections": 5,
+      "maxConnectionsPerHost": 2,
+      "connectionTimeout": 1000,
+      "idleTimeout": 5000,
+      "retryAttempts": 1,
+      "retryDelay": 100,
+      "keepAlive": false
+    }
+  },
+  
+  "rateLimiter": {
+    "production": {
+      "maxRequests": 1000,
+      "windowMs": 60000,
+      "strategy": "sliding-window",
+      "keyGenerator": "ip-user",
+      "skipSuccessful": false,
+      "skipFailed": false,
+      "warningThresholds": {
+        "rejectionRate": 10,
+        "burstDetection": true
+      },
+      "tiers": {
+        "premium": {
+          "maxRequests": 5000,
+          "windowMs": 60000,
+          "priority": "high"
+        },
+        "standard": {
+          "maxRequests": 1000,
+          "windowMs": 60000,
+          "priority": "normal"
+        },
+        "basic": {
+          "maxRequests": 500,
+          "windowMs": 60000,
+          "priority": "low"
+        }
+      }
+    },
+    "development": {
+      "maxRequests": 100,
+      "windowMs": 60000,
+      "strategy": "fixed-window",
+      "keyGenerator": "ip",
+      "skipSuccessful": true,
+      "skipFailed": true
+    },
+    "testing": {
+      "maxRequests": 10000,
+      "windowMs": 1000,
+      "strategy": "fixed-window",
+      "keyGenerator": "none"
+    }
+  },
+  
+  "monitoring": {
+    "performance": {
+      "metricsCollection": {
+        "enabled": true,
+        "interval": 5000,
+        "historyLength": 720,
+        "exportFormat": "json"
+      },
+      "alerting": {
+        "enabled": true,
+        "channels": ["console", "file"],
+        "thresholds": {
+          "memory": {
+            "warning": 70,
+            "critical": 85
+          },
+          "cpu": {
+            "warning": 70,
+            "critical": 90
+          },
+          "responseTime": {
+            "warning": 200,
+            "critical": 500
+          },
+          "errorRate": {
+            "warning": 5,
+            "critical": 10
+          },
+          "cacheHitRate": {
+            "warning": 80,
+            "critical": 60
+          }
+        }
+      },
+      "dashboard": {
+        "enabled": true,
+        "updateInterval": 5000,
+        "autoRecommendations": true,
+        "exportPath": "./data/performance"
+      }
+    },
+    "healthChecks": {
+      "enabled": true,
+      "interval": 10000,
+      "timeout": 5000,
+      "endpoints": [
+        {
+          "name": "database",
+          "type": "storage",
+          "critical": true
+        },
+        {
+          "name": "cache",
+          "type": "cache",
+          "critical": false
+        },
+        {
+          "name": "external-api",
+          "type": "http",
+          "url": "https://httpbin.org/status/200",
+          "critical": false
+        }
+      ]
+    }
+  },
+  
+  "optimization": {
+    "autoTuning": {
+      "enabled": false,
+      "interval": 300000,
+      "aggressiveness": "moderate",
+      "maxAdjustmentPercentage": 20,
+      "safeMode": true,
+      "backupSettings": true
+    },
+    "presets": {
+      "high-throughput": {
+        "description": "Optimized for high request volume",
+        "cache": {
+          "maxSize": 200971520,
+          "evictionPolicy": "lfu",
+          "compression": true
+        },
+        "connectionPool": {
+          "maxConnections": 200,
+          "maxConnectionsPerHost": 30
+        },
+        "rateLimiter": {
+          "maxRequests": 5000,
+          "strategy": "token-bucket"
+        }
+      },
+      "low-latency": {
+        "description": "Optimized for minimum response time",
+        "cache": {
+          "maxSize": 52428800,
+          "evictionPolicy": "lru",
+          "compression": false
+        },
+        "connectionPool": {
+          "maxConnections": 50,
+          "connectionTimeout": 1000,
+          "keepAlive": true
+        },
+        "rateLimiter": {
+          "maxRequests": 2000,
+          "strategy": "sliding-window"
+        }
+      },
+      "memory-optimized": {
+        "description": "Optimized for low memory usage",
+        "cache": {
+          "maxSize": 20971520,
+          "evictionPolicy": "lru",
+          "compression": true
+        },
+        "connectionPool": {
+          "maxConnections": 20,
+          "maxConnectionsPerHost": 5
+        },
+        "rateLimiter": {
+          "maxRequests": 500,
+          "strategy": "fixed-window"
+        }
+      }
+    },
+    "recommendations": {
+      "enabled": true,
+      "notificationThreshold": 3,
+      "autoApply": {
+        "enabled": false,
+        "safetyChecks": true,
+        "rollbackOnFailure": true
+      }
+    }
+  },
+  
+  "security": {
+    "rateLimiting": {
+      "denyList": {
+        "enabled": true,
+        "maxEntries": 10000,
+        "duration": 3600000
+      },
+      "allowList": {
+        "enabled": true,
+        "entries": ["127.0.0.1", "::1"]
+      },
+      "geoBlocking": {
+        "enabled": false,
+        "blockedCountries": [],
+        "allowedCountries": []
+      }
+    },
+    "encryption": {
+      "algorithm": "aes-256-gcm",
+      "keyRotation": {
+        "enabled": true,
+        "interval": 86400000
+      }
+    }
+  },
+  
+  "logging": {
+    "performance": {
+      "level": "info",
+      "format": "json",
+      "maxFileSize": "100MB",
+      "maxFiles": 5,
+      "logMetrics": true,
+      "logSlowQueries": true,
+      "slowQueryThreshold": 1000
+    }
+  },
+  
+  "testing": {
+    "loadTesting": {
+      "scenarios": [
+        {
+          "name": "baseline",
+          "duration": 60,
+          "targetRPS": 50,
+          "maxConcurrency": 20
+        },
+        {
+          "name": "stress",
+          "duration": 120,
+          "targetRPS": 200,
+          "maxConcurrency": 100
+        },
+        {
+          "name": "spike",
+          "duration": 30,
+          "targetRPS": 500,
+          "maxConcurrency": 200
+        }
+      ],
+      "thresholds": {
+        "errorRate": 5,
+        "responseTime": {
+          "p95": 500,
+          "p99": 1000
+        },
+        "memoryUsage": 200
+      }
+    }
+  }
+}
