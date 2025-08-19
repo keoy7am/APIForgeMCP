@@ -21,6 +21,10 @@ APIForge MCP Server is an API testing and management tool designed specifically 
 
 ### Installation
 
+#### Requirements 
+- Node.js >= 18
+- Claude Desktop、Claude Code、Cursor or other MCP Client
+
 #### Quick Start with npx (No installation required)
 
 ```bash
@@ -116,26 +120,6 @@ After configuration, restart Claude Desktop and verify the server is available:
    - Ask Claude to "create a new API workspace"
    - Request to "list available API endpoints"
    - The tools `workspace.create`, `endpoint.add`, etc. should be available
-
-### Development Mode
-
-```bash
-# Clone the project
-git clone https://github.com/keoy7am/APIForgeMCP.git
-cd APIForgeMCP
-
-# Install dependencies
-npm install
-
-# Run in development mode
-npm run dev
-
-# Build the project
-npm run build
-
-# Run tests
-npm test
-```
 
 ## Quick Test
 
@@ -310,6 +294,20 @@ src/
 
 ## Development
 
+### Development Mode
+
+```bash
+# Clone the project
+git clone https://github.com/keoy7am/APIForgeMCP.git
+cd APIForgeMCP
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+```
+
 ### Running Tests
 
 ```bash
@@ -371,10 +369,6 @@ data/
     └── {workspaceId}.json   # Environment variables
 ```
 
-## License
-
-MIT License
-
 ## Contributing
 
 Welcome to submit Issues and Pull Requests!
@@ -391,3 +385,11 @@ Welcome to submit Issues and Pull Requests!
 
 - GitHub Issues: [Project Issues](https://github.com/keoy7am/APIForgeMCP/issues)
 - Documentation: [MCP User Manual](./docs/MCP_USER_MANUAL.md) - Complete MCP tool documentation and examples
+
+## License
+
+MIT License
+
+## License
+
+MIT License
