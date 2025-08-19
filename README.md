@@ -68,12 +68,19 @@ npm start
   claude mcp add apiforge APIForgeMCP
   ```
 
+  #### Verify Installation
+
+  ```bash
+  claude mcp list
+  ```
+
+  it should be showing `✓ Connected` in list!!
 </details>
 
 <details>
   <summary>Claude Desktop MCP Integration</summary>
 
-  > To integrate APIForge with Claude Desktop, you need to add the following configuration to your Claude Desktop MCP settings:
+  To integrate APIForge with Claude Desktop, you need to add the following configuration to your Claude Desktop MCP settings:
 
   **Configuration file locations:**
   Add this to your Claude Desktop claude_desktop_config.json file. See [Claude Desktop MCP](https://modelcontextprotocol.io/quickstart/user) docs for more info.
@@ -107,9 +114,6 @@ npm start
   }
 }
 ```
-
-</details>
-
 #### Verify Installation
 
 After configuration, restart Claude Desktop and verify the server is available:
@@ -120,6 +124,8 @@ After configuration, restart Claude Desktop and verify the server is available:
    - Ask Claude to "create a new API workspace"
    - Request to "list available API endpoints"
    - The tools `workspace.create`, `endpoint.add`, etc. should be available
+
+</details>
 
 ## Quick Test
 
