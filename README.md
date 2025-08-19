@@ -380,6 +380,10 @@ data/
 
 Welcome to submit Issues and Pull Requests!
 
+## Roadmap
+
+- [ ] Support WEB UI for reviewing API requests and responses history
+
 ### Development Workflow
 
 1. Fork the project
