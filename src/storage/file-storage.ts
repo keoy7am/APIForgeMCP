@@ -31,7 +31,8 @@ export class FileStorage implements IStorage {
   private collections: Map<string, any> = new Map();
 
   constructor(dataDir: string = './data') {
-    this.dataDir = path.resolve(dataDir);
+    // Normalize path for cross-platform compatibility
+    this.dataDir = path.normalize(path.resolve(dataDir));
     this.logger = new Logger('FileStorage');
   }
 
@@ -435,12 +436,23 @@ export class FileStorage implements IStorage {
 
   // Private helper methods
   private async ensureDirectories(): Promise<void> {
-    await fs.mkdir(this.dataDir, { recursive: true });
-    await fs.mkdir(path.join(this.dataDir, 'workspaces'), { recursive: true });
-    await fs.mkdir(path.join(this.dataDir, 'endpoints'), { recursive: true });
-    await fs.mkdir(path.join(this.dataDir, 'history'), { recursive: true });
-    await fs.mkdir(path.join(this.dataDir, 'environments'), { recursive: true });
-    await fs.mkdir(path.join(this.dataDir, 'collections'), { recursive: true });
+    try {
+      // Create main data directory
+      await fs.mkdir(this.dataDir, { recursive: true });
+      
+      // Create subdirectories - no need for 'workspaces' as workspaces.json is in root
+      const subdirs = ['endpoints', 'history', 'environments', 'collections'];
+      
+      for (const subdir of subdirs) {
+        const dirPath = path.join(this.dataDir, subdir);
+        await fs.mkdir(dirPath, { recursive: true });
+      }
+      
+      this.logger.debug(`Ensured all directories exist at ${this.dataDir}`);
+    } catch (error) {
+      this.logger.error('Failed to create directories:', error);
+      throw new StorageError(`Failed to create storage directories: ${(error as Error).message}`, error as Error);
+    }
   }
 
   private async loadWorkspaces(): Promise<void> {
@@ -465,9 +477,15 @@ export class FileStorage implements IStorage {
   }
 
   private async saveWorkspaces(): Promise<void> {
-    const workspacesPath = path.join(this.dataDir, 'workspaces.json');
-    const workspaces = Array.from(this.workspaces.values());
-    await fs.writeFile(workspacesPath, JSON.stringify(workspaces, null, 2));
+    try {
+      const workspacesPath = path.join(this.dataDir, 'workspaces.json');
+      const workspaces = Array.from(this.workspaces.values());
+      await fs.writeFile(workspacesPath, JSON.stringify(workspaces, null, 2));
+    } catch (error) {
+      this.logger.error('Failed to save workspaces:', error);
+      // Re-throw with more context
+      throw new StorageError(`Failed to save workspaces: ${(error as Error).message}`, error as Error);
+    }
   }
 
   private async loadEndpoints(): Promise<void> {
@@ -502,14 +520,20 @@ export class FileStorage implements IStorage {
   }
 
   private async saveEndpoints(workspaceId: string): Promise<void> {
-    const endpointMap = this.endpoints.get(workspaceId);
-    if (!endpointMap) {
-      return;
+    try {
+      const endpointMap = this.endpoints.get(workspaceId);
+      if (!endpointMap) {
+        return;
+      }
+      
+      const endpoints = Array.from(endpointMap.values());
+      const filePath = path.join(this.dataDir, 'endpoints', `${workspaceId}.json`);
+      await fs.writeFile(filePath, JSON.stringify(endpoints, null, 2));
+    } catch (error) {
+      this.logger.error(`Failed to save endpoints for workspace ${workspaceId}:`, error);
+      // Re-throw with more context
+      throw new StorageError(`Failed to save endpoints for workspace ${workspaceId}: ${(error as Error).message}`, error as Error);
     }
-    
-    const endpoints = Array.from(endpointMap.values());
-    const filePath = path.join(this.dataDir, 'endpoints', `${workspaceId}.json`);
-    await fs.writeFile(filePath, JSON.stringify(endpoints, null, 2));
   }
 
   private async loadHistory(): Promise<void> {

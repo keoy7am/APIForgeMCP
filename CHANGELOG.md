@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-08-19
+
+### Fixed
+- Fixed storage initialization error on Windows systems
+- Improved cross-platform path handling with proper normalization
+- Enhanced error handling for file write operations with detailed logging
+- Fixed directory creation to ensure all required subdirectories exist
+- Added better error context for storage-related failures
+
 ## [1.0.2] - 2025-08-19
 - Fixed JSON Schema validation error for MCP tool registration
 - Added `zod-to-json-schema` library for proper schema conversion
