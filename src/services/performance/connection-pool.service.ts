@@ -13,6 +13,7 @@ import type {
   ConnectionPoolStats,
 } from '../../types';
 import { Logger } from '../../utils/logger';
+import { sslConfig } from '../../config/ssl.config';
 
 interface PooledConnection {
   agent: HttpAgent | HttpsAgent;
@@ -189,15 +190,15 @@ export class ConnectionPool extends EventEmitter {
     
     // For HTTPS connections, allow self-signed certificates in development
     if (isHttps) {
-      // Check if we should reject unauthorized certificates
-      // Allow override via environment variable or if running in development
-      const rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0' 
-        && process.env.NODE_ENV === 'production';
+      // Use centralized SSL configuration
+      const sslSettings = sslConfig.getSSLSettings(url.href);
+      agentOptions.rejectUnauthorized = sslSettings.rejectUnauthorized;
       
-      agentOptions.rejectUnauthorized = rejectUnauthorized;
-      
-      if (!rejectUnauthorized) {
-        this.logger.warn('SSL certificate validation disabled - only use in development!');
+      // Log warnings from SSL configuration
+      if (!sslSettings.rejectUnauthorized) {
+        sslSettings.warnings.forEach(warning => {
+          this.logger.warn(warning);
+        });
       }
     }
     

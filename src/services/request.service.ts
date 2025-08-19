@@ -8,6 +8,7 @@ import {
   BatchOptions,
   BatchResult 
 } from '../types';
+import { sslConfig } from '../config/ssl.config';
 import { 
   RequestResultSchema,
   RequestDataSchema,
@@ -23,7 +24,6 @@ import {
   RequestTimeoutError,
   ResponseParsingError
 } from './error';
-import { Agent as HttpsAgent } from 'https';
 import { EndpointRegistry } from './endpoint.service';
 import { Logger } from '../utils/logger';
 import { 
@@ -538,6 +538,10 @@ export class RequestExecutor {
    * Execute the actual HTTP request with enhanced error handling
    */
   private async executeRequest(request: RequestData): Promise<ResponseData> {
+    // Store original SSL setting for restoration
+    let originalSSLValue: string | undefined;
+    let sslModified = false;
+
     try {
       // Prepare base fetch options
       const options: RequestInit = {
@@ -547,22 +551,24 @@ export class RequestExecutor {
         signal: AbortSignal.timeout(30000), // 30 second timeout
       };
 
-      // Configure HTTPS agent for self-signed certificates in development
+      // Handle SSL certificate validation using centralized configuration
       if (request.url.startsWith('https://')) {
-        const rejectUnauthorized = process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0' 
-          && process.env.NODE_ENV === 'production';
+        const sslSettings = sslConfig.getSSLSettings(request.url);
         
-        if (!rejectUnauthorized) {
-          // For Node.js fetch, we need to use dispatcher with agent
-          const httpsAgent = new HttpsAgent({
-            rejectUnauthorized: false
+        // Apply SSL settings to Node.js environment
+        // Note: Node.js native fetch respects NODE_TLS_REJECT_UNAUTHORIZED
+        if (!sslSettings.rejectUnauthorized) {
+          // Store original value and mark as modified
+          originalSSLValue = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+          sslModified = true;
+          
+          // Temporarily set the environment variable for this request
+          process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+          
+          // Log warnings
+          sslSettings.warnings.forEach(warning => {
+            this.logger.warn(warning);
           });
-          
-          // Note: This requires Node.js 18.13+ with undici support
-          // @ts-ignore
-          options.dispatcher = httpsAgent;
-          
-          this.logger.warn('SSL certificate validation disabled for HTTPS requests - only use in development!');
         }
       }
 
@@ -600,7 +606,7 @@ export class RequestExecutor {
           if (error.message.includes('ECONNREFUSED') || error.message.includes('ENOTFOUND')) {
             throw new HTTPError(
               `Network connection failed: ${error.message}`,
-              0,
+              502,
               request.url,
               request.method
             );
@@ -610,7 +616,7 @@ export class RequestExecutor {
               error.message.includes('SSL') || error.message.includes('TLS')) {
             throw new HTTPError(
               `SSL/TLS certificate error: ${error.message}. Consider using --ignore-certificate-errors for development.`,
-              0,
+              502,
               request.url,
               request.method
             );
@@ -619,7 +625,7 @@ export class RequestExecutor {
         
         throw new HTTPError(
           `HTTP request failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          0,
+          502,
           request.url,
           request.method
         );
@@ -682,6 +688,15 @@ export class RequestExecutor {
         request,
         error as Error
       );
+    } finally {
+      // Restore original SSL setting if it was modified
+      if (sslModified) {
+        if (originalSSLValue === undefined) {
+          delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+        } else {
+          process.env.NODE_TLS_REJECT_UNAUTHORIZED = originalSSLValue;
+        }
+      }
     }
   }
 
@@ -782,6 +797,31 @@ export class RequestExecutor {
     error: Error,
     duration: number
   ): RequestResult {
+    // Determine appropriate HTTP status code based on error type
+    let status = 500;
+    let statusText = 'Internal Server Error';
+    
+    if (error instanceof HTTPError) {
+      // Ensure status code is valid (>= 100)
+      status = (!error.statusCode || error.statusCode < 100) ? 502 : error.statusCode;
+      statusText = error.message;
+    } else if (error instanceof RequestTimeoutError) {
+      status = 504;
+      statusText = 'Gateway Timeout';
+    } else if (error.message.includes('ECONNREFUSED')) {
+      status = 502;
+      statusText = 'Bad Gateway - Connection Refused';
+    } else if (error.message.includes('ENOTFOUND')) {
+      status = 502;
+      statusText = 'Bad Gateway - Host Not Found';
+    }
+    
+    // Final safety check to ensure status is valid
+    if (status < 100) {
+      status = 502;
+      statusText = 'Bad Gateway';
+    }
+    
     return {
       success: false,
       request: {
@@ -790,6 +830,13 @@ export class RequestExecutor {
         headers: endpoint.headers,
         queryParams: endpoint.queryParams,
         body: endpoint.body,
+        timestamp: new Date(),
+      },
+      response: {
+        status,
+        statusText,
+        headers: {},
+        body: { error: error.message },
         timestamp: new Date(),
       },
       duration,
@@ -802,7 +849,11 @@ export class RequestExecutor {
    * Create an error response for failed HTTP requests
    */
   private createErrorResponse(error: Error, _request: RequestData): ResponseData {
-    const status = error instanceof HTTPError ? error.statusCode : 500;
+    let status = 500;
+    if (error instanceof HTTPError) {
+      // Ensure status code is valid (>= 100)
+      status = (!error.statusCode || error.statusCode < 100) ? 502 : error.statusCode;
+    }
     
     return {
       status,

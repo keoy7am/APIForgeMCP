@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-08-19
+
+### Added
+- Intelligent SSL/TLS configuration management system with environment-aware defaults
+- Centralized SSL configuration module (`src/config/ssl.config.ts`) 
+- SSL security audit logging and reporting capabilities
+- Support for SSL certificate fingerprint validation
+- Troubleshooting section in documentation for common MCP issues
+- Environment variable `APIFORGE_ENABLE_LOGS` for explicit logging control
+- Environment variable `APIFORGE_DEBUG` as alternative debug flag
+
+### Changed
+- **BREAKING**: Logging is now disabled by default to prevent MCP protocol interference
+- **BREAKING**: Changed from `APIFORGE_DISABLE_LOGS` to `APIFORGE_ENABLE_LOGS` (inverted logic)
+- All log output now goes to stderr instead of stdout to avoid MCP JSON-RPC conflicts
+- SSL certificate validation now defaults to developer-friendly mode when NODE_ENV is not set
+- Improved SSL handling for localhost and private network addresses in development
+
+### Fixed
+- Fixed MCP protocol errors caused by log output to stdout (`SyntaxError: Unexpected token... is not valid JSON`)
+- Fixed SSL certificate validation issues for development environments
+- Resolved connection pool SSL configuration synchronization issues
+
+### Enhanced
+- Better separation of development and production SSL security policies
+- Automatic detection and handling of private network addresses (10.x, 192.168.x, 172.16-31.x)
+- Wildcard pattern support for SSL_ALLOWED_SELF_SIGNED_HOSTS configuration
+- Comprehensive SSL security warnings and audit trail
+- Cleaner MCP client experience with silent operation by default
+
+### Security
+- Implemented risk-based SSL validation with environment awareness
+- Added security audit reporting with risk level assessment (LOW/MEDIUM/HIGH/CRITICAL)
+- Enhanced SSL certificate validation with whitelist and fingerprint support
+- Clear security warnings when SSL validation is bypassed
+- Production environment enforces strict SSL validation by default
+
+### Documentation
+- Added comprehensive SSL/TLS configuration guide
+- Updated environment variable documentation with security best practices
+- Added troubleshooting guide for common MCP connection issues
+- Enhanced .env.example with detailed configuration examples
+- Clarified logging behavior and debugging instructions
+
 ## [1.0.7] - 2025-08-19
 
 ### Fixed

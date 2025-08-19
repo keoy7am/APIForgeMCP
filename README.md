@@ -1,6 +1,9 @@
 # APIForge MCP Server
 
-API Testing and Management Tool for AI Agents - MCP Server
+**API Testing and Management Tool for AI Agents - MCP Server**
+
+[![npm version](https://badge.fury.io/js/apiforge-mcp.svg)](https://www.npmjs.com/package/apiforge-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
 
@@ -21,7 +24,8 @@ APIForge MCP Server is an API testing and management tool designed specifically 
 
 ### Installation
 
-#### Requirements 
+#### Requirements
+
 - Node.js >= 18
 - Claude Desktop、Claude Code、Cursor or other MCP Client
 
@@ -30,6 +34,9 @@ APIForge MCP Server is an API testing and management tool designed specifically 
 ```bash
 # Run directly with npx - no installation needed!
 npx apiforge-mcp@latest
+
+# By default, allows self-signed certificates for localhost and private networks
+# Perfect for local development and testing!
 ```
 
 #### Global Installation
@@ -58,24 +65,25 @@ npm start
 <details>
   <summary>Claude Code</summary>
 
-  ```bash
+```bash
   claude mcp add apiforge -- npx -y apiforge-mcp@latest
   claude mcp add apiforge --scope user -- npx -y apiforge-mcp@latest (set to global)
-  ```
+```
 
   **Alternative configuration for globally installed version:**
 
-  ```bash
+```bash
   claude mcp add apiforge APIForgeMCP
-  ```
+```
 
-  #### Verify Installation
+#### Verify Installation
 
-  ```bash
+```bash
   claude mcp list
-  ```
+```
 
   it should be showing `✓ Connected` in list!!
+
 </details>
 
 <details>
@@ -86,7 +94,7 @@ npm start
   **Configuration file locations:**
   Add this to your Claude Desktop claude_desktop_config.json file. See [Claude Desktop MCP](https://modelcontextprotocol.io/quickstart/user) docs for more info.
 
-  ```json
+```json
   {
     "mcpServers": {
       "apiforge": {
@@ -94,11 +102,12 @@ npm start
         "args": ["apiforge-mcp@latest"],
         "env": {
           "APIFORGE_DATA_DIR": "~/.apiforge"
+          // "APIFORGE_ENABLE_LOGS": "true"  // Uncomment only for debugging
         }
       }
     }
   }
-  ```
+```
 
 **Alternative configuration for globally installed version:**
 
@@ -115,6 +124,7 @@ npm start
   }
 }
 ```
+
 #### Verify Installation
 
 After configuration, restart Claude Desktop and verify the server is available:
@@ -358,8 +368,76 @@ npm run clean
 
 ### Environment Variables
 
+#### Core Settings
+
 - `APIFORGE_DATA_DIR`: Data storage directory (default: `./data`)
 - `NODE_ENV`: Runtime environment (`development` | `production`)
+
+#### Logging Configuration
+
+**Important**: Logs are **DISABLED by default** to ensure smooth MCP protocol communication.
+
+- `APIFORGE_ENABLE_LOGS`: Set to `true` to enable logging output (for debugging only)
+  - Default: `false` (logs disabled)
+  - All logs are sent to stderr to avoid interfering with MCP protocol on stdout
+  - Only enable when troubleshooting issues
+- `APIFORGE_DEBUG`: Alternative to `APIFORGE_ENABLE_LOGS` (same effect)
+
+#### SSL/TLS Configuration
+
+APIForge MCP provides flexible SSL certificate validation to support both development and production environments securely.
+
+##### Default Behavior
+
+**When installed via npm/npx (NODE_ENV not set)**:
+
+- ✅ **Allows** self-signed certificates for `localhost` and private networks
+- ✅ **Developer-friendly** mode is enabled by default
+- ℹ️ Logs informational message about using developer-friendly settings
+- ⚠️ For production use, explicitly set `NODE_ENV=production`
+
+**By Environment**:
+
+- **Development** (`NODE_ENV=development`): Allows self-signed certificates for localhost and private networks
+- **Production** (`NODE_ENV=production`): Strict SSL validation enabled by default
+- **Not Set** (typical npm install): Same as development mode (developer-friendly)
+
+##### Environment Variables for SSL
+
+- `SSL_REJECT_UNAUTHORIZED`: Control SSL certificate validation
+
+  - `true`: Always validate certificates (recommended for production)
+  - `false`: Allow self-signed certificates (development only)
+  - Default: `false` in development, `true` in production
+- `SSL_ALLOWED_SELF_SIGNED_HOSTS`: Comma-separated list of hostnames allowed to use self-signed certificates
+
+  - Example: `api.dev.local,*.test.internal,staging.example.com`
+  - Supports wildcard patterns (e.g., `*.dev.local`)
+- `SSL_TRUSTED_FINGERPRINTS`: Comma-separated list of trusted certificate SHA256 fingerprints
+
+  - For additional security when using self-signed certificates
+
+##### Security Best Practices
+
+1. **Development Environment**:
+
+   - Self-signed certificates are automatically allowed for:
+     - `localhost`, `127.0.0.1`, `::1`
+     - Private networks (10.x, 192.168.x, 172.16-31.x)
+     - `.local` domains
+   - Clear warnings are logged when SSL validation is bypassed
+2. **Production Environment**:
+
+   - SSL validation is strictly enforced by default
+   - Only explicitly whitelisted hosts can use self-signed certificates
+   - Critical warnings are logged if SSL validation is disabled
+3. **Security Audit**:
+
+   - All SSL validation bypasses are logged
+   - Audit reports can be generated to review security decisions
+   - Use the API to access SSL audit logs and security reports
+
+⚠️ **Warning**: Never set `SSL_REJECT_UNAUTHORIZED=false` in production unless you fully understand the security implications. This makes your application vulnerable to MITM attacks.
 
 ### Data Storage
 
@@ -391,6 +469,33 @@ Welcome to submit Issues and Pull Requests!
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Create a Pull Request
+
+## Troubleshooting
+
+### Common Issues
+
+#### MCP Connection Errors
+
+If you encounter errors like `SyntaxError: Unexpected token... is not valid JSON`:
+
+1. **Logs are disabled by default** - This is normal and prevents interference with MCP protocol
+2. **To enable debugging**, add to your configuration:
+   ```json
+   "env": {
+     "APIFORGE_ENABLE_LOGS": "true"
+   }
+   ```
+3. **View logs** (they output to stderr):
+   ```bash
+   # For command line debugging
+   APIFORGE_ENABLE_LOGS=true npx apiforge-mcp@latest 2>debug.log
+   ```
+
+#### SSL Certificate Issues
+
+For self-signed certificates in development:
+- APIForge automatically allows localhost and private network self-signed certificates
+- For production, set `NODE_ENV=production` for strict SSL validation
 
 ## Support
 
