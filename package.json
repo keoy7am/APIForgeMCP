@@ -1,6 +1,6 @@
 {
   "name": "apiforge-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "API testing and management tool for AI Agents - MCP Server",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,8 @@
     "js-yaml": "^4.1.0",
     "jsonpath-plus": "^10.3.0",
     "uuid": "^11.1.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.24.6"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

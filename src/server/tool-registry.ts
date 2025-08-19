@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { APIForgeError } from '../utils/errors';
 import { Logger } from '../utils/logger';
 
@@ -175,72 +176,40 @@ export class ToolRegistry {
    * Convert Zod schema to JSON Schema for MCP protocol
    */
   private zodSchemaToJsonSchema(schema: z.ZodSchema): any {
-    // This is a simplified conversion
-    // In a production environment, you might want to use a library like zod-to-json-schema
-    
-    // Try to get the schema as a ZodObject
-    try {
-      if (schema instanceof z.ZodObject) {
-        const properties: Record<string, any> = {};
-        const required: string[] = [];
-        
-        // Get shape from the schema
-        const shape = schema.shape;
-        
-        for (const [key, value] of Object.entries(shape)) {
-          properties[key] = this.zodTypeToJsonSchema(value as z.ZodSchema);
-          
-          // Check if field is required (not optional)
-          if (!(value as z.ZodSchema).isOptional()) {
-            required.push(key);
-          }
-        }
-        
-        return {
-          type: 'object',
-          properties,
-          required: required.length > 0 ? required : undefined,
-        };
-      }
-    } catch (error) {
-      // Fallback to simple type conversion
-    }
-    
-    return this.zodTypeToJsonSchema(schema);
-  }
+    // Use zod-to-json-schema library for proper conversion
+    const jsonSchema = zodToJsonSchema(schema, {
+      // Use JSON Schema draft 2019-09 (compatible with 2020-12)
+      target: 'jsonSchema2019-09',
+      // Avoid references for simpler schemas
+      $refStrategy: 'none',
+      // Ensure strict mode for better compatibility
+      strictUnions: true,
+      // Remove additional properties by default for stricter validation
+      removeAdditionalStrategy: 'strict',
+    }) as any;
 
-  /**
-   * Convert individual Zod type to JSON Schema type
-   */
-  private zodTypeToJsonSchema(schema: z.ZodSchema): any {
-    // Simple type mapping - can be enhanced
-    if (schema instanceof z.ZodString) {
-      return { type: 'string' };
-    } else if (schema instanceof z.ZodNumber) {
-      return { type: 'number' };
-    } else if (schema instanceof z.ZodBoolean) {
-      return { type: 'boolean' };
-    } else if (schema instanceof z.ZodArray) {
-      return {
-        type: 'array',
-        items: { type: 'any' },
+    // Ensure the schema has proper structure for MCP
+    if (typeof jsonSchema === 'object' && jsonSchema !== null) {
+      // Add $schema declaration for JSON Schema 2020-12 compliance
+      const result: any = {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        ...jsonSchema
       };
-    } else if (schema instanceof z.ZodObject) {
-      return this.zodSchemaToJsonSchema(schema);
-    } else if (schema instanceof z.ZodOptional) {
-      return this.zodTypeToJsonSchema(schema._def.innerType);
-    } else if (schema instanceof z.ZodEnum) {
-      return {
-        type: 'string',
-        enum: schema._def.values,
-      };
-    } else if (schema instanceof z.ZodRecord) {
-      return {
-        type: 'object',
-        additionalProperties: { type: 'any' },
-      };
-    } else {
-      return { type: 'any' };
+
+      // Ensure required is always an array (never undefined) for object types
+      if (result.type === 'object' && result.properties) {
+        if (!result.required) {
+          result.required = [];
+        }
+        // Ensure additionalProperties is set for objects
+        if (result.additionalProperties === undefined) {
+          result.additionalProperties = false;
+        }
+      }
+
+      return result;
     }
+
+    return jsonSchema;
   }
 }
