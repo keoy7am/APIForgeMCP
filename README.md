@@ -21,13 +21,74 @@ APIForge MCP Server is an API testing and management tool designed specifically 
 
 ### Installation
 
+#### Quick Start with npx (No installation required)
+
 ```bash
-npm install -g APIForgeMCP
+# Run directly with npx - no installation needed!
+npx apiforge-mcp@latest
 ```
 
-### Configure MCP Client
+#### Global Installation
 
-Add APIForge server to your MCP client configuration:
+```bash
+# Install globally
+npm install -g apiforge-mcp
+
+# Run the server
+APIForgeMCP
+```
+
+#### Local Development
+
+```bash
+# Clone and run locally
+git clone https://github.com/keoy7am/APIForgeMCP.git
+cd APIForgeMCP
+npm install
+npm run build
+npm start
+```
+
+### Configure To Client
+
+<details>
+  <summary>Claude Code</summary>
+
+  ```bash
+  claude mcp add apiforge -- npx -y apiforge-mcp@latest
+  ```
+
+  **Alternative configuration for globally installed version:**
+
+  ```bash
+  claude mcp add apiforge APIForgeMCP
+  ```
+
+</details>
+
+<details>
+  <summary>Claude Desktop MCP Integration</summary>
+
+  > To integrate APIForge with Claude Desktop, you need to add the following configuration to your Claude Desktop MCP settings:
+
+  **Configuration file locations:**
+  Add this to your Claude Desktop claude_desktop_config.json file. See [Claude Desktop MCP](https://modelcontextprotocol.io/quickstart/user) docs for more info.
+
+  ```json
+  {
+    "mcpServers": {
+      "apiforge": {
+        "command": "npx",
+        "args": ["apiforge-mcp@latest"],
+        "env": {
+          "APIFORGE_DATA_DIR": "~/.apiforge"
+        }
+      }
+    }
+  }
+  ```
+
+**Alternative configuration for globally installed version:**
 
 ```json
 {
@@ -42,6 +103,19 @@ Add APIForge server to your MCP client configuration:
   }
 }
 ```
+
+</details>
+
+#### Verify Installation
+
+After configuration, restart Claude Desktop and verify the server is available:
+
+1. **Restart Claude Desktop** - Close and reopen the application
+2. **Check MCP Connection** - Look for the MCP indicator in the interface
+3. **Test Available Tools** - Try using APIForge tools in your conversation:
+   - Ask Claude to "create a new API workspace"
+   - Request to "list available API endpoints"
+   - The tools `workspace.create`, `endpoint.add`, etc. should be available
 
 ### Development Mode
 
@@ -62,6 +136,32 @@ npm run build
 # Run tests
 npm test
 ```
+
+## Quick Test
+
+Once configured, you can test APIForge MCP Server with these simple commands in Claude Desktop:
+
+### Test Commands
+
+Try these commands in your Claude conversation:
+
+1. **Create a test workspace:**
+
+   ```
+   "Please create an API workspace called 'Test Project'"
+   ```
+2. **Add a test endpoint:**
+
+   ```
+   "Add a GET endpoint for https://jsonplaceholder.typicode.com/users"
+   ```
+3. **Execute the request:**
+
+   ```
+   "Execute the users endpoint and show me the results"
+   ```
+
+If these commands work, your APIForge MCP Server is properly configured!
 
 ## Basic Usage
 
