@@ -129,7 +129,7 @@ After configuration, restart Claude Desktop and verify the server is available:
 
 ## Quick Test
 
-Once configured, you can test APIForge MCP Server with these simple commands in Claude Desktop:
+Once configured, you can test APIForge MCP Server with these simple commands in Claude Desktop(or other client):
 
 ### Test Commands
 
@@ -391,10 +391,6 @@ Welcome to submit Issues and Pull Requests!
 
 - GitHub Issues: [Project Issues](https://github.com/keoy7am/APIForgeMCP/issues)
 - Documentation: [MCP User Manual](./docs/MCP_USER_MANUAL.md) - Complete MCP tool documentation and examples
-
-## License
-
-MIT License
 
 ## License
 
